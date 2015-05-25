@@ -126,7 +126,11 @@ public class FairphoneUpdater extends FragmentActivity
 	    if (Settings.Global.getInt(getContentResolver(), CRASHLYTICS_OPT_IN, 0) == 1)
         {
             Log.d(TAG, "Crash reports active.");
-            Crashlytics.start(this);
+            try {
+                Crashlytics.start(this);
+            } catch(Exception e) {
+                Log.w(TAG, "Crashlytics failed to start");
+            }
         }
 
         DEV_MODE_ENABLED = false;
