@@ -67,7 +67,6 @@ public class UpdaterService extends Service
 
     public static final String LAST_CONFIG_DOWNLOAD_IN_MS = "LAST_CONFIG_DOWNLOAD_IN_MS";
     private static final int CONFIG_FILE_DOWNLOAD_TIMEOUT_MILLIS = 23500;
-    public static final String ACTION_FAIRPHONE_UPDATER_CONFIG_FILE_DOWNLOAD = "FAIRPHONE_UPDATER_CONFIG_FILE_DOWNLOAD";
     public static final String EXTRA_FORCE_CONFIG_FILE_DOWNLOAD = "FORCE_DOWNLOAD";
     
     private static final String TAG = UpdaterService.class.getSimpleName();
@@ -85,8 +84,9 @@ public class UpdaterService extends Service
 	private SharedPreferences mSharedPreferences;
 
     private final static long DOWNLOAD_GRACE_PERIOD_IN_MS = 24 /* hour */ * Utils.MINUTES_IN_HOUR /* minute */ * Utils.SECONDS_IN_MINUTE /* second */ * 1000 /* millisecond */;
+    private BroadcastReceiver networkStateReceiver;
 
-	@Override
+    @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         // remove the logs
@@ -105,26 +105,13 @@ public class UpdaterService extends Service
 
         setupConnectivityMonitoring();
 
-        if (hasInternetConnection())
+        if (Utils.isWiFiEnabled(getApplicationContext()))
         {
-            downloadConfigFile(false);
+            downloadConfigFile(intent != null && intent.getBooleanExtra(EXTRA_FORCE_CONFIG_FILE_DOWNLOAD, false));
         }
 
         // setup the gapps installer
         GappsInstallerHelper.checkGappsAreInstalled(getApplicationContext());
-
-	    BroadcastReceiver mBCastConfigFileDownload = new BroadcastReceiver() {
-
-		    @Override
-		    public void onReceive(Context context, Intent intent) {
-			    if (hasInternetConnection()) {
-				    boolean forceDownload = intent.getBooleanExtra(EXTRA_FORCE_CONFIG_FILE_DOWNLOAD, false);
-				    downloadConfigFile(forceDownload);
-			    }
-		    }
-	    };
-
-        getApplicationContext().registerReceiver(mBCastConfigFileDownload, new IntentFilter(ACTION_FAIRPHONE_UPDATER_CONFIG_FILE_DOWNLOAD));
 
         runInstallationDisclaimer(getApplicationContext());
 
@@ -178,7 +165,7 @@ public class UpdaterService extends Service
         long now = System.currentTimeMillis();
         long last_download = mSharedPreferences.getLong(LAST_CONFIG_DOWNLOAD_IN_MS, 0L);
         if( forceDownload || now > (last_download + DOWNLOAD_GRACE_PERIOD_IN_MS) ) {
-            Log.d(TAG, "Downloading updater configuration file.");
+            Log.i(TAG, "Downloading updater configuration file.");
             // remove the old file if its still there for some reason
             removeLatestFileDownload(getApplicationContext());
     
@@ -414,53 +401,49 @@ public class UpdaterService extends Service
     private void setupConnectivityMonitoring()
     {
 
-        // Check current connectivity status
-        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        boolean is3g = manager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnectedOrConnecting();
-        boolean isWifi = manager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnectedOrConnecting();
-        mInternetConnectionAvailable = isWifi || is3g;
+        if (networkStateReceiver == null) {
+            // Check current connectivity status
+            mInternetConnectionAvailable = Utils.isWiFiEnabled(getApplicationContext());
 
-        // Setup monitoring for future connectivity status changes
-        BroadcastReceiver networkStateReceiver = new BroadcastReceiver()
-        {
-            @Override
-            public void onReceive(Context context, Intent intent)
+            // Setup monitoring for future connectivity status changes
+            networkStateReceiver = new BroadcastReceiver()
             {
-                if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false))
+                @Override
+                public void onReceive(Context context, Intent intent)
                 {
-                    Log.i(TAG, "Lost network connectivity.");
-                    mInternetConnectionAvailable = false;
-                    if (mLatestFileDownloadId != 0 && mDownloadManager != null)
+                    if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)) {
+                        Log.i(TAG, "Lost network connectivity.");
+                        mInternetConnectionAvailable = false;
+                        if (mLatestFileDownloadId != 0 && mDownloadManager != null)
+                        {
+                            onDownloadStatus(mLatestFileDownloadId, new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.d(TAG, "Removing pending download.");
+                                    mDownloadManager.remove(mLatestFileDownloadId);
+                                    saveLatestDownloadId(0);
+                                }
+                            });
+                        }
+                    }
+                    else
                     {
-                        onDownloadStatus(mLatestFileDownloadId, new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.d(TAG, "Removing pending download.");
-                                mDownloadManager.remove(mLatestFileDownloadId);
-                                saveLatestDownloadId(0);
+                        int conn_type = intent.getIntExtra(ConnectivityManager.EXTRA_NETWORK_TYPE, ConnectivityManager.TYPE_DUMMY);
+                        if( conn_type == ConnectivityManager.TYPE_WIFI ) {
+                            Log.i(TAG, "Network connectivity potentially available.");
+                            if (!mInternetConnectionAvailable) {
+                                downloadConfigFile(false);
                             }
-                        });
+                            mInternetConnectionAvailable = true;
+                        }
                     }
                 }
-                else
-                {
-                    Log.i(TAG, "Network connectivity potentially available.");
-                    if (!mInternetConnectionAvailable)
-                    {
-                        downloadConfigFile(false);
-                    }
-                    mInternetConnectionAvailable = true;
-                }
-            }
-        };
+            };
 
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkStateReceiver, filter);
-    }
+            IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+            registerReceiver(networkStateReceiver, filter);
 
-    private boolean hasInternetConnection()
-    {
-        return mInternetConnectionAvailable;
+        }
     }
 
     private void setupDownloadManager()

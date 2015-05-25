@@ -16,11 +16,7 @@
 
 package com.fairphone.updater.tools;
 
-import android.annotation.SuppressLint;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.DownloadManager;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -30,8 +26,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -138,40 +132,9 @@ public class Utils
 
     public static void startUpdaterService(Context context, boolean forceDownload)
     {
-        boolean isNotRunning = !isServiceRunning(context);
-
-        if (isNotRunning)
-        {
-            Log.e(TAG, "Starting Updater Service...");
-            Intent i = new Intent(context, UpdaterService.class);
-            context.startService(i);
-            try
-            {
-                Thread.sleep(DELAY_100_MILLIS);
-            } catch (InterruptedException e)
-            {
-                Log.w(TAG, "Start Updater service delay error: " + e.getLocalizedMessage());
-            }
-        }
-        else if (forceDownload)
-        {
-            downloadConfigFile(context, true);
-        }
-    }
-
-    private static boolean isServiceRunning(Context context)
-    {
-        boolean isRunning = false;
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
-        {
-            if (UpdaterService.class.getName().equals(service.service.getClassName()))
-            {
-                isRunning = true;
-                break;
-            }
-        }
-        return isRunning;
+        Intent i = new Intent(context, UpdaterService.class);
+        i.putExtra(UpdaterService.EXTRA_FORCE_CONFIG_FILE_DOWNLOAD, forceDownload);
+        context.startService(i);
     }
 
 // --Commented out by Inspection START (06/02/2015 12:26):
@@ -194,13 +157,6 @@ public class Utils
 //        }
 //    }
 // --Commented out by Inspection STOP (06/02/2015 12:26)
-
-    public static void downloadConfigFile(Context context, boolean forceDownload)
-    {
-        Intent i = new Intent(UpdaterService.ACTION_FAIRPHONE_UPDATER_CONFIG_FILE_DOWNLOAD);
-        i.putExtra(UpdaterService.EXTRA_FORCE_CONFIG_FILE_DOWNLOAD, forceDownload);
-        context.sendBroadcast(i);
-    }
 
     // **************************************************************************************************************
     // HELPERS
@@ -462,7 +418,7 @@ public class Utils
             return prop;
         } catch (NoSuchElementException e)
         {
-            Log.w(TAG, "Error reading prop "+name+". Defaulting to " + defaultValue + ": " + e.getLocalizedMessage());
+            Log.d(TAG, "Error reading prop "+name+". Defaulting to " + defaultValue + ": " + e.getLocalizedMessage());
             return defaultValue;
         } catch (Exception e)
         {

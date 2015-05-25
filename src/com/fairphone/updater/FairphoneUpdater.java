@@ -108,7 +108,7 @@ public class FairphoneUpdater extends FragmentActivity
     private Store mSelectedStore;
 
     private TextView headerMainAppStoreText;
-    public static enum HeaderType
+    public enum HeaderType
     {
         MAIN_FAIRPHONE, MAIN_ANDROID, MAIN_APP_STORE, FAIRPHONE, ANDROID, OTHER_OS, APP_STORE
     }
@@ -160,8 +160,6 @@ public class FairphoneUpdater extends FragmentActivity
             mSharedPreferences.edit().remove(UpdaterService.LAST_CONFIG_DOWNLOAD_IN_MS).apply();
         }
 
-        startService();
-
         if (mDeviceVersion != null)
         {
             mLatestVersion = isConfigLoaded ? UpdaterData.getInstance().getLatestVersion(mDeviceVersion.getImageType()) : null;
@@ -170,9 +168,6 @@ public class FairphoneUpdater extends FragmentActivity
         {
             mLatestVersion = null;
         }
-
-        getSelectedVersionFromSharedPreferences();
-        getSelectedStoreFromSharedPreferences();
 
         initHeaderViews();
 
@@ -246,7 +241,7 @@ public class FairphoneUpdater extends FragmentActivity
     }
 
     public void forceConfigDownload(){
-        Utils.downloadConfigFile(this, true);
+        Utils.startUpdaterService(getApplicationContext(), true);
     }
 
     private void initHeaderViews()
