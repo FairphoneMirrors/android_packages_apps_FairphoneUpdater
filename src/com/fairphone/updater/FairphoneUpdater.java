@@ -451,6 +451,7 @@ public class FairphoneUpdater extends FragmentActivity
             default:
                 headerMainFairphoneText.setVisibility(View.VISIBLE);
                 headerMainAndroidText.setVisibility(View.GONE);
+                headerMainAppStoreText.setVisibility(View.GONE);
                 headerFairphoneText.setVisibility(View.GONE);
                 headerAndroidText.setVisibility(View.GONE);
                 headerAppStoreText.setVisibility(View.GONE);
