@@ -55,9 +55,13 @@ import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils
 {
@@ -186,7 +190,7 @@ public class Utils
         return calculatedDigest.equalsIgnoreCase(md5);
     }
 
-    private static String calculateMD5(File updateFile)
+    public static String calculateMD5(File updateFile)
     {
         MessageDigest digest;
         try
@@ -396,47 +400,46 @@ public class Utils
         Version deviceVersion = VersionParserHelper.getDeviceVersion(context);
         return deviceVersion == null || TextUtils.isEmpty(deviceVersion.getName());
     }
-    
-    public static String getprop(String name, String defaultValue)
-    {
-        ProcessBuilder pb = new ProcessBuilder("/system/bin/getprop", name);
-        pb.redirectErrorStream(true);
 
-        Process p;
-        InputStream is = null;
-        try
-        {
-            p = pb.start();
-            is = p.getInputStream();
-            Scanner scan = new Scanner(is);
-            scan.useDelimiter("\n");
-            String prop = scan.next();
-            if (prop.isEmpty())
-            {
-                return defaultValue;
-            }
-            return prop;
-        } catch (NoSuchElementException e)
-        {
-            Log.d(TAG, "Error reading prop "+name+". Defaulting to " + defaultValue + ": " + e.getLocalizedMessage());
-            return defaultValue;
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        } finally
-        {
-            if (is != null)
-            {
-                try
-                {
-                    is.close();
-                } catch (Exception e)
-                {
-	                Log.d(TAG, "Unexpected issue: "+e.getLocalizedMessage() );
-                }
+    private static Map<String,String> buildProps;
+    public static Map<String,String> getpropAll(){
+
+        if(buildProps==null) {
+            buildProps = new HashMap<>();
+            ProcessBuilder pb = new ProcessBuilder("/system/bin/getprop");
+            pb.redirectErrorStream(true);
+            Pattern propRegex = Pattern.compile("\\[([^\\]]+)\\]: \\[([^\\]]+)\\]");
+
+            Process p;
+            InputStream is = null;
+            try {
+                p = pb.start();
+                is = p.getInputStream();
+                Scanner scan = new Scanner(is);
+                String prop;
+                do {
+                    prop = scan.nextLine();
+                    Matcher match = propRegex.matcher(prop);
+                    if(match.find()){
+                        buildProps.put(match.group(1), match.group(2));
+                    }
+                } while(!prop.isEmpty());
+            } catch (NoSuchElementException e) {
+            } catch (IOException e) {
             }
         }
-        return defaultValue;
+        return buildProps;
+    }
+
+    public static String getprop(String name, String defaultValue)
+    {
+        String result;
+        if (getpropAll().containsKey(name)){
+            result = getpropAll().get(name);
+        } else {
+            result = defaultValue;
+        }
+        return result;
     }
 
 	public static void setBetaPropToEnable() {

@@ -150,7 +150,7 @@ public class FairphoneUpdater extends FragmentActivity
         // reset download URL
         Editor editor = mSharedPreferences.edit();
         editor.putString(PREFERENCE_OTA_DOWNLOAD_URL, otaDownloadUrl);
-        editor.commit();
+        editor.apply();
 
         // get system data
         mDeviceVersion = VersionParserHelper.getDeviceVersion(this);

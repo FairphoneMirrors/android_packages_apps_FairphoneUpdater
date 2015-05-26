@@ -73,6 +73,7 @@ public class UpdaterService extends Service
 
     public static final String PREFERENCE_LAST_CONFIG_DOWNLOAD_ID = "LastConfigDownloadId";
     public static final String PREFERENCE_REINSTALL_GAPPS = "ReinstallGappsOmnStartUp";
+    public static final String PREFERENCE_CONFIG_MD_5 = "CONFIG_MD5";
     private DownloadManager mDownloadManager = null;
     private DownloadBroadCastReceiver mDownloadBroadCastReceiver = null;
 
@@ -493,18 +494,20 @@ public class UpdaterService extends Service
 
         if (file.exists())
         {
-            if (RSAUtils.checkFileSignature(context, filePath, targetPath))
-            {
+            String md5sum = Utils.calculateMD5(file);
+            SharedPreferences sp = context.getSharedPreferences(FairphoneUpdater.FAIRPHONE_UPDATER_PREFERENCES, MODE_PRIVATE);
+            if(sp.getString(PREFERENCE_CONFIG_MD_5, "").equals(md5sum)){
+                retVal = true;
+            } else if (RSAUtils.checkFileSignature(context, filePath, targetPath)) {
                 checkVersionValidation(context);
                 retVal = true;
-            }
-            else
-            {
+                sp.edit().putString(PREFERENCE_CONFIG_MD_5, md5sum).apply();
+            } else {
                 //Toast.makeText(context, resources.getString(R.string.invalid_signature_download_message), Toast.LENGTH_LONG).show();
                 final boolean notDeleted = !file.delete();
-	            if(notDeleted) {
-		            Log.d(TAG, "Unable to delete "+file.getAbsolutePath());
-	            }
+                if(notDeleted) {
+                    Log.d(TAG, "Unable to delete "+file.getAbsolutePath());
+                }
 
             }
         }
