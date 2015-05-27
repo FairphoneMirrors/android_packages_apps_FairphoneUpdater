@@ -16,12 +16,6 @@
 
 package com.fairphone.updater;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-
 import android.app.DownloadManager;
 import android.app.DownloadManager.Request;
 import android.app.Notification;
@@ -49,8 +43,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.concurrent.TimeoutException;
-
 import com.fairphone.updater.data.UpdaterData;
 import com.fairphone.updater.data.Version;
 import com.fairphone.updater.data.VersionParserHelper;
@@ -60,6 +52,16 @@ import com.fairphone.updater.tools.RSAUtils;
 import com.fairphone.updater.tools.Utils;
 import com.stericson.RootTools.execution.CommandCapture;
 import com.stericson.RootTools.execution.Shell;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.util.concurrent.TimeoutException;
 
 
 public class UpdaterService extends Service
@@ -462,11 +464,22 @@ public class UpdaterService extends Service
         }
     }
 
+    private static void copyConfigToData(Context context) throws IOException {
+        Resources resources = context.getApplicationContext().getResources();
+        String targetPath = Environment.getExternalStorageDirectory() + resources.getString(R.string.updaterFolder);
+        FileInputStream inStream = new FileInputStream(targetPath + resources.getString(R.string.configFilename) + resources.getString(R.string.config_xml));
+        FileOutputStream outStream = context.openFileOutput(resources.getString(R.string.configFilename) + resources.getString(R.string.config_xml), MODE_PRIVATE);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+    }
+
     private static void checkVersionValidation(Context context)
     {
         Version latestVersion = VersionParserHelper.getLatestVersion(context.getApplicationContext());
         Version currentVersion = VersionParserHelper.getDeviceVersion(context.getApplicationContext());
-
         if (latestVersion != null)
         {
             if (latestVersion.isNewerVersionThan(currentVersion))
@@ -481,7 +494,12 @@ public class UpdaterService extends Service
         context.sendBroadcast(updateIntent);
     }
 
-    public static boolean readUpdaterData(Context context)
+    public static boolean readUpdaterData(Context context){
+        Version latestVersion = VersionParserHelper.getLatestVersion(context.getApplicationContext());
+        return latestVersion != null;
+    }
+
+    public static boolean updateUpdaterData(Context context)
     {
 
         boolean retVal = false;
@@ -495,21 +513,31 @@ public class UpdaterService extends Service
         if (file.exists())
         {
             String md5sum = Utils.calculateMD5(file);
-            SharedPreferences sp = context.getSharedPreferences(FairphoneUpdater.FAIRPHONE_UPDATER_PREFERENCES, MODE_PRIVATE);
+            SharedPreferences sp = context.getApplicationContext().getSharedPreferences(FairphoneUpdater.FAIRPHONE_UPDATER_PREFERENCES, MODE_PRIVATE);
             if(sp.getString(PREFERENCE_CONFIG_MD_5, "").equals(md5sum)){
                 retVal = true;
-            } else if (RSAUtils.checkFileSignature(context, filePath, targetPath)) {
-                checkVersionValidation(context);
-                retVal = true;
-                sp.edit().putString(PREFERENCE_CONFIG_MD_5, md5sum).apply();
             } else {
-                //Toast.makeText(context, resources.getString(R.string.invalid_signature_download_message), Toast.LENGTH_LONG).show();
-                final boolean notDeleted = !file.delete();
-                if(notDeleted) {
-                    Log.d(TAG, "Unable to delete "+file.getAbsolutePath());
-                }
+                if (RSAUtils.checkFileSignature(context, filePath, targetPath)) {
+                    try {
+                        copyConfigToData(context);
+                        checkVersionValidation(context);
+                        retVal = true;
+                        sp.edit().putString(PREFERENCE_CONFIG_MD_5, md5sum).apply();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to store configuration " + e.getLocalizedMessage());
+                        retVal = false;
+                    }
+                } else {
+                    //Toast.makeText(context, resources.getString(R.string.invalid_signature_download_message), Toast.LENGTH_LONG).show();
+                    final boolean notDeleted = !file.delete();
+                    if(notDeleted) {
+                        Log.d(TAG, "Unable to delete "+file.getAbsolutePath());
+                    }
 
+                }
             }
+        } else {
+            Log.wtf(TAG, "No file");
         }
 
         return retVal;
@@ -603,13 +631,10 @@ public class UpdaterService extends Service
                     case DownloadManager.STATUS_SUCCESSFUL:
                     {
                         Log.d(TAG, "Download successful.");
-                        String filePath = mDownloadManager.getUriForDownloadedFile(mLatestFileDownloadId).getPath();
 
-                        String targetPath = Environment.getExternalStorageDirectory() + resources.getString(R.string.updaterFolder);
-
-                        if (RSAUtils.checkFileSignature(context, filePath, targetPath))
+                        if (updateUpdaterData(context))
                         {
-                            checkVersionValidation(context);
+                            removeLatestFileDownload(context);
                         }
                         else
                         {

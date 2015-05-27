@@ -32,6 +32,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
@@ -124,15 +125,17 @@ public class VersionParserHelper
 
         Version latest = null;
         Resources resources = context.getResources();
-        String filePath =
-                Environment.getExternalStorageDirectory() + resources.getString(R.string.updaterFolder) + resources.getString(R.string.configFilename);
-        File file = new File(filePath + resources.getString(R.string.config_xml));
+        FileInputStream fis = null;
+        try {
+            fis = context.openFileInput(resources.getString(R.string.configFilename) + resources.getString(R.string.config_xml));
+        } catch (FileNotFoundException e){
+        }
 
-        if (file.exists())
+        if (fis != null)
         {
             try
             {
-                latest = parseLatestXML(context, file);
+                latest = parseLatestXML(context, fis);
             } catch (XmlPullParserException e)
             {
                 Log.e(TAG, "Could not start the XML parser", e);
@@ -162,7 +165,12 @@ public class VersionParserHelper
 
     // @formatter:on
 
-    private static Version parseLatestXML(Context context, File latestFile) throws XmlPullParserException, IOException
+    private static Version parseLatestXML(Context context, File latestFile) throws XmlPullParserException, IOException {
+        FileInputStream fis = new FileInputStream(latestFile);
+        return parseLatestXML(context, fis);
+    }
+
+    private static Version parseLatestXML(Context context, FileInputStream fis) throws XmlPullParserException, IOException
     {
 
         Version version = null;
@@ -175,7 +183,6 @@ public class VersionParserHelper
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
-        FileInputStream fis = new FileInputStream(latestFile);
 
         XmlPullParser xpp = factory.newPullParser();
 

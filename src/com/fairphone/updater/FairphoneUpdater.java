@@ -1,13 +1,11 @@
 package com.fairphone.updater;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -179,6 +177,8 @@ public class FairphoneUpdater extends FragmentActivity
         initHeaderViews();
 
         setupFragments(savedInstanceState);
+
+        startService();
     }
 
 
@@ -835,8 +835,6 @@ public class FairphoneUpdater extends FragmentActivity
         {
             updateStatePreference(TextUtils.isEmpty(mZipPath) ? UpdaterState.NORMAL : UpdaterState.ZIP_INSTALL);
         }
-
-        startService();
 
         boolean isConfigLoaded = UpdaterService.readUpdaterData(this);
         mDeviceVersion = VersionParserHelper.getDeviceVersion(this);
