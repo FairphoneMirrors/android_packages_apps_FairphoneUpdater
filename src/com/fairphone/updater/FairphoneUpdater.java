@@ -91,6 +91,7 @@ public class FairphoneUpdater extends FragmentActivity
 
     public static boolean DEV_MODE_ENABLED;
     public static boolean BETA_MODE_ENABLED;
+    public static String otaDevDownloadUrl = "";
 
     private TextView headerMainFairphoneText;
     private TextView headerMainAndroidText;
@@ -134,6 +135,8 @@ public class FairphoneUpdater extends FragmentActivity
         }
 
         DEV_MODE_ENABLED = false;
+
+        otaDevDownloadUrl = "";
 
         // update first times
         mIsFirstTimeAndroid = mSharedPreferences.getBoolean(PREFERENCE_FIRST_TIME_ANDROID, true);
@@ -237,10 +240,10 @@ public class FairphoneUpdater extends FragmentActivity
     }
 
     public void changeOTADownloadURL(String newUrl){
-        String otaDownloadUrl = TextUtils.isEmpty(newUrl) ? getResources().getString(R.string.downloadUrl) : newUrl;
+        otaDevDownloadUrl = TextUtils.isEmpty(newUrl) ? getResources().getString(R.string.downloadUrl) : newUrl;
 
         Editor editor = mSharedPreferences.edit();
-        editor.putString(PREFERENCE_OTA_DOWNLOAD_URL, otaDownloadUrl);
+        editor.putString(PREFERENCE_OTA_DOWNLOAD_URL, otaDevDownloadUrl);
         editor.commit();
     }
 
