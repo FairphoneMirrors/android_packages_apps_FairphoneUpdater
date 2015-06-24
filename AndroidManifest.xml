@@ -29,7 +29,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/icn_updater"
-        android:label="@string/app_name"
+        android:label="@string/app_full_name"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
         <service

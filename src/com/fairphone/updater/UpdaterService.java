@@ -154,7 +154,7 @@ public class UpdaterService extends Service
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
 	    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_tray_icon)
-			    .setContentTitle(context.getResources().getString(R.string.app_name))
+			    .setContentTitle(context.getResources().getString(R.string.app_full_name))
 			    .setContentText(context.getResources().getString(R.string.appStoreReinstall))
 			    .setAutoCancel(true)
 			    .setDefaults(Notification.DEFAULT_SOUND)
@@ -354,7 +354,7 @@ public class UpdaterService extends Service
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_tray_icon_small)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.updater_tray_icon))
-                        .setContentTitle(context.getResources().getString(R.string.app_name))
+                        .setContentTitle(context.getResources().getString(R.string.app_full_name))
                         .setContentText(context.getResources().getString(R.string.fairphone_update_message));
 
         Intent resultIntent = new Intent(context, FairphoneUpdater.class);
