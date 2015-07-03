@@ -442,34 +442,22 @@ public class Utils
         return result;
     }
 
-	public static void setBetaPropToEnable() {
-		if (PrivilegeChecker.isPrivilegedApp()) {
-			setBetaPropToEnablePrivileged();
-		} else {
-			setBetaPropToEnableUnprivileged();
-		}
-	}
-
-	private static void setBetaPropToEnablePrivileged() {
-	    ProcessBuilder pb = new ProcessBuilder("/system/bin/setprop", BetaEnabler.FAIRPHONE_BETA_PROPERTY, BetaEnabler.BETA_ENABLED);
-	    try {
-		    Process p = pb.start();
-		    p.waitFor();
-	    } catch (IOException | InterruptedException e) {
-		    Log.d(TAG, "Failed to setprop: " + e.getLocalizedMessage());
-	    }
-	}
-
-	private static void setBetaPropToEnableUnprivileged()
+	public static void setBetaPropToEnable()
     {
         if(RootTools.isAccessGiven()) {
-            CommandCapture command = new CommandCapture(0, "setprop "+ BetaEnabler.FAIRPHONE_BETA_PROPERTY+" "+BetaEnabler.BETA_ENABLED);
+            CommandCapture command = new CommandCapture(0, "/system/bin/setprop "+ BetaEnabler.FAIRPHONE_BETA_PROPERTY+" "+BetaEnabler.BETA_ENABLED);
             try {
                 Shell.runRootCommand(command);
             } catch (IOException | TimeoutException | RootDeniedException e) {
 	            Log.d(TAG, "Failed to setprop: " + e.getLocalizedMessage());
             }
         }
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+
+        }
+        buildProps = null;
     }
 
     public static String getOtaPackagePath(Resources resources, DownloadableItem item, boolean isVersion, boolean isZipInstall){
