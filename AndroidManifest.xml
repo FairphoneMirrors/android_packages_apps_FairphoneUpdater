@@ -28,13 +28,13 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icn_updater"
+        android:icon="@drawable/updater"
         android:label="@string/app_full_name"
         android:theme="@style/AppTheme"
         android:supportsRtl="true">
         <service
             android:name=".UpdaterService"
-            android:icon="@drawable/icn_updater"
+            android:icon="@drawable/updater"
             android:label="@string/updater_service" />
 
         <receiver
@@ -54,7 +54,7 @@
 
         <receiver
             android:name=".widgets.gapps.GoogleAppsInstallerWidget"
-            android:icon="@drawable/icn_updater"
+            android:icon="@drawable/updater"
             android:label="@string/google_apps_installer_name" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
