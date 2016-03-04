@@ -24,6 +24,8 @@ import com.fairphone.updater.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Version extends DownloadableItem implements Comparable<Version>
 {
@@ -44,8 +46,6 @@ public class Version extends DownloadableItem implements Comparable<Version>
     private boolean mErasePartitionsWarning;
 
     private final List<Integer> mDependencies;
-
-    public static final int ZIP_INSTALL_VERSION = 999;
 
     public Version()
     {
@@ -147,11 +147,11 @@ public class Version extends DownloadableItem implements Comparable<Version>
         int retVal;
         if (another != null)
         {
-            if (this.getNumber() < another.getNumber() && this.mImageType.equalsIgnoreCase(another.mImageType))
+            if (!this.getId().equals(another.getId()) && this.mImageType.equalsIgnoreCase(another.mImageType))
             {
                 retVal = 1;
             }
-            else if (this.getNumber() == another.getNumber() && this.mImageType.equalsIgnoreCase(another.mImageType))
+            else if (this.getId() == another.getId() && this.mImageType.equalsIgnoreCase(another.mImageType))
             {
                 retVal = 0;
             }
@@ -195,4 +195,41 @@ public class Version extends DownloadableItem implements Comparable<Version>
 //        return mDependencies;
 //    }
 // --Commented out by Inspection STOP (09/02/2015 19:47)
+
+    /**
+     * This method retrieves the int.int.int part of the fingerprint
+     * @return the version as string or empty string if no version was found
+     */
+    public String getBuildNumberFromId(){
+        String id = getId();
+        Pattern pattern = Pattern.compile(".*?\\d+.*?(\\d+)(\\.)(\\d+)(\\.)(\\d+)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);    // is this pattern sufficient?
+        Matcher matcher = pattern.matcher(id);                             // get version number from fingerprint
+        if (matcher.find()) {
+            return  matcher.group(1) + "." +matcher.group(3) + "." + matcher.group(5);
+        }
+        Log.d(TAG,String.format("Failed to determine version number from fingerprint: %s",id));
+        return ""; /* we don't know what version is here */
+    }
+
+    /**
+     * This method constructs the current version type from the device fingerprint
+     * @return A human (english) version type to be displayed on the screen
+     */
+    public String getCurrentImageType() {
+        String id = getId();
+        if(id.contains("gms")) {
+            return "Fairphone OS";
+        } else if (id.contains("sibon")) {
+            return "Fairphone Open Source OS";
+        } else if (id.contains("AOSP+")) {
+            return "Fairphone Internal";
+        } else {
+            // we do have a version but.. we don't know about it. return the full "number"
+            return id;
+        }
+    }
+
+    public String getHumanReadableName() {
+        return getName() + " " + getBuildNumber();
+    }
 }

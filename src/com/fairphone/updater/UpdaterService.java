@@ -31,7 +31,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -153,7 +152,7 @@ public class UpdaterService extends Service
         
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-	    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_tray_icon)
+	NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_white)
 			    .setContentTitle(context.getResources().getString(R.string.app_full_name))
 			    .setContentText(context.getResources().getString(R.string.appStoreReinstall))
 			    .setAutoCancel(true)
@@ -329,7 +328,7 @@ public class UpdaterService extends Service
                 final String defaultCharset = Charset.defaultCharset().displayName();
                 sb.append("&os=").append(URLEncoder.encode(currentVersion.getAndroidVersion(), defaultCharset));
                 sb.append("&b_n=").append(URLEncoder.encode(currentVersion.getBuildNumber(), defaultCharset));
-                sb.append("&ota_v_n=").append(URLEncoder.encode(String.valueOf(currentVersion.getNumber()), defaultCharset));
+                sb.append("&ota_v_n=").append(URLEncoder.encode(String.valueOf(currentVersion.getId()), defaultCharset));
                 sb.append("&d=").append(URLEncoder.encode(currentVersion.getReleaseDate(), defaultCharset));
                 sb.append("&beta=").append(URLEncoder.encode(currentVersion.getBetaStatus(), defaultCharset));
                 sb.append("&dev=").append(FairphoneUpdater.DEV_MODE_ENABLED ? "1" : "0");
@@ -352,8 +351,7 @@ public class UpdaterService extends Service
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_tray_icon_small)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.updater_tray_icon))
+                new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_white)
                         .setContentTitle(context.getResources().getString(R.string.app_full_name))
                         .setContentText(context.getResources().getString(R.string.fairphone_update_message));
 
@@ -613,7 +611,6 @@ public class UpdaterService extends Service
         {
 
             boolean removeReceiver = false;
-
             DownloadManager.Query query = new DownloadManager.Query();
 
             query.setFilterById(mLatestFileDownloadId);
