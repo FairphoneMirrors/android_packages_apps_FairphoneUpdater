@@ -545,6 +545,10 @@ public class FairphoneUpdater extends FragmentActivity
                 {
                     firstFragment = startGappsInstall();  
                 }
+                else if (getTopFragment() != null)
+                {
+                    firstFragment = getTopFragment();
+                }
                 else
                 {
                     firstFragment = new MainFragment();
