@@ -138,11 +138,6 @@ public class UpdaterService extends Service
 
     private static void showReinstallAlert(Context context)
     {
-        if ( FairphoneUpdater.BETA_MODE_ENABLED )
-        {
-            return;
-        }
-
 	    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         //Intent notificationIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(context.getResources().getString(R.string.supportAppStoreUrl)));
@@ -152,7 +147,7 @@ public class UpdaterService extends Service
         
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-	NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_white)
+	    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.updater_white)
 			    .setContentTitle(context.getResources().getString(R.string.app_full_name))
 			    .setContentText(context.getResources().getString(R.string.appStoreReinstall))
 			    .setAutoCancel(true)
@@ -343,12 +338,6 @@ public class UpdaterService extends Service
 
     private static void setNotification(Context currentContext)
     {
-
-        if ( FairphoneUpdater.BETA_MODE_ENABLED )
-        {
-            return;
-        }
-        
         Context context = currentContext.getApplicationContext();
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
