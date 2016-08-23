@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <string name="app_name">Updater</string>
@@ -42,10 +42,10 @@
     <string name="older_version">Older version</string>
     <string name="older_version_os_install_confirmation">Are you sure you want to continue?</string>
     <string name="older_version_os_install_confirmation_checkbox">I know and understand all implications of performing this installation</string>
-    <string name="older_versions">Older versions</string>
+    <string name="older_versions">Other versions</string>
     <string name="os_update_has_started_message">The update has started. This may take some time depending on your network connection speed.</string>
     <string name="other_os_options">Enter advanced mode</string>
-    <string name="please_be_patient">Just a moment&#8230;</string>
+    <string name="please_be_patient">Just a moment…</string>
     <string name="restart">Restart</string>
     <string name="restart_your_phone_message">Restart your phone to complete the update.</string>
     <string name="take_me_back">Take me back</string>
