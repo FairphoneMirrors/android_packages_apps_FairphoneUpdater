@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <string name="app_name">Updater</string>
@@ -41,10 +41,10 @@
     <string name="older_version">Version dépassée</string>
     <string name="older_version_os_install_confirmation">Êtes-vous certain de vouloir continuer ?</string>
     <string name="older_version_os_install_confirmation_checkbox">Je comprends et j\'accepte toutes les implications de cette installation.</string>
-    <string name="older_versions">Anciennes versions</string>
+    <string name="older_versions">Autres versions</string>
     <string name="os_update_has_started_message">La mise à jour a démarré. Selon la vitesse de votre connexion réseau, cette opération peut prendre un certain temps.</string>
     <string name="other_os_options">Passer en mode avancé</string>
-    <string name="please_be_patient">Veuillez patienter&#8230;</string>
+    <string name="please_be_patient">Veuillez patienter…</string>
     <string name="restart">Redémarrer</string>
     <string name="restart_your_phone_message">Redémarrez votre téléphone pour terminer la mise à jour.</string>
     <string name="take_me_back">Revenir en arrière</string>
