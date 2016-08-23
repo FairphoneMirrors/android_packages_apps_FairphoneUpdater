@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <string name="app_name"> Updater</string>
@@ -36,15 +36,15 @@
     <string name="invalid_signature_download_message">Ficheiro inválido descarregado: Assinatura errada</string>
     <string name="latest_version">Versão mais recente</string>
     <string name="new_os">Novo Sistema Operativo</string>
-    <string name="no_space_available_cache_message">Sem espaço disponível em /cache. A abortar&#8230;</string>
-    <string name="no_space_available_sd_card_message">Sem espaço disponível na memória. A abortar&#8230;</string>
+    <string name="no_space_available_cache_message">Sem espaço disponível em /cache. A abortar…</string>
+    <string name="no_space_available_sd_card_message">Sem espaço disponível na memória. A abortar…</string>
     <string name="older_version">Versão anterior</string>
     <string name="older_version_os_install_confirmation">Tem a certeza de que quer prosseguir?</string>
     <string name="older_version_os_install_confirmation_checkbox">Tomei conhecimento das implicações desta instalação</string>
-    <string name="older_versions">Versões anteriores</string>
+    <string name="older_versions">Outras versões</string>
     <string name="os_update_has_started_message">A actualização foi iniciada. Isto pode levar algum tempo, dependendo da velocidade da sua ligação.</string>
     <string name="other_os_options">Entrar no modo avançado</string>
-    <string name="please_be_patient">Por favor aguarde&#8230;</string>
+    <string name="please_be_patient">Por favor aguarde…</string>
     <string name="restart">Reiniciar</string>
     <string name="restart_your_phone_message">Reinicie o seu telefone para finalizar a actualização.</string>
     <string name="take_me_back">Voltar atrás</string>
