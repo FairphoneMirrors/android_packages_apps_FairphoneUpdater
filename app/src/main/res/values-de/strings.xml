@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
 
     <string name="app_name">Updater</string>
@@ -41,10 +41,10 @@
     <string name="older_version">ältere Version</string>
     <string name="older_version_os_install_confirmation">Bist du sicher, dass du weitermachen willst?</string>
     <string name="older_version_os_install_confirmation_checkbox">Ich kenne und verstehe alle Konsequenzen dieser Installation</string>
-    <string name="older_versions">Ältere Versionen</string>
+    <string name="older_versions">Andere Versionen</string>
     <string name="os_update_has_started_message">Das Update hat begonnen. Dies kann ein wenig dauern, abhängig von der Gechwindigkeit deiner Internet Verbindung.</string>
     <string name="other_os_options">Betrete den fortgeschrittenen Modus</string>
-    <string name="please_be_patient">Bitte gedulde dich noch ein wenig&#8230;</string>
+    <string name="please_be_patient">Bitte gedulde dich noch ein wenig…</string>
     <string name="restart">Neustarten</string>
     <string name="restart_your_phone_message">Neustarte dein Fairphone um das Update abzuschliessen.</string>
     <string name="take_me_back">Bring mich zurück</string>
