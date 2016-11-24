@@ -23,8 +23,6 @@ import android.content.SharedPreferences;
 import com.fairphone.updater.tools.Utils;
 import com.fairphone.updater.widgets.gapps.GoogleAppsInstallerWidget;
 
-import java.io.File;
-
 public class GappsInstallerHelper
 {
     public static final String PREFS_GOOGLE_APPS_INSTALLER_DATA = "FAIRPHONE_GOOGLE_APPS_INSTALLER_DATA";
@@ -37,7 +35,7 @@ public class GappsInstallerHelper
 
     public static boolean areGappsInstalled()
     {
-        return Utils.fileExists("/system/app/OneTimeInitializer.apk");
+        return Utils.fileExists("/system/app/OneTimeInitializer.apk") || Utils.fileExists("/system/priv-app/GoogleOneTimeInitializer.apk");
     }
 
     public static void checkGappsAreInstalled(Context context)
